@@ -1,1 +1,1 @@
-# FlappyCompute
+# FlappyComputer
