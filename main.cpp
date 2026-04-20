@@ -2,16 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Computer.hpp"
 #include "Parallax.hpp"
-
-/*
-
-COPIA PARA COPILAR:
-g++ main.cpp Computer.cpp Obstacle.cpp Parallax.cpp -o FlappyComputer -lsfml-graphics -lsfml-window -lsfml-system
-
-COPIA PARA EJECUTAR (En consola para ver errores)
-./FlappyComputer
-
-*/
+#include "UiSound.hpp"
 
 int main()
 {
@@ -38,16 +29,14 @@ int main()
     
     pressed = false;
 
+    UISound uis;
+
     while(window.isOpen())
     {
-        //
-        // Inicializacion
-        //
-
         Computer *computer = new Computer(210,350);
         Parallax *parallax = new Parallax();
         initiated = false;
-        
+        uis.initiate(false);
 
         while (true)
         {
@@ -66,40 +55,46 @@ int main()
             if(computer->GetLive())
             {
                 parallax->Update();
-                if(sf::Mouse::isButtonPressed(sf::Mouse::Left)&&!pressed)
+                
+                if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && !pressed)
                 {
                     computer->Jump();
                     pressed = true;
+                    uis.wing();
                     if(!initiated)
                     {
                         initiated = true;
                         computer->Initiated();
-                        parallax ->Initiated();
+                        parallax->Initiated();
+                        uis.initiate(true);
                     }
                 }
-                else if(!sf::Mouse::isButtonPressed(sf::Mouse::Left) && pressed)
+
+                sf::IntRect Rect(computer->GetPosition().x-23, computer->GetPosition().y-21, 44, 40);
+                if(parallax->Collision(Rect) || computer->GetPosition().y < 0 || computer->GetPosition().y > (700-136))
                 {
-                    pressed = false;
-                    
+                    computer->Death();
+                    uis.gameOver();
                 }
-            }else{
-                break;
             }
-            sf::IntRect Rect(computer->GetPosition().x-23,computer->GetPosition().y-21,44,40);
-            if(parallax->Collision(Rect))
+            else 
             {
-                computer->Death();
+                if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && !pressed)
+                {
+                    pressed = true;
+                    break; 
+                }
             }
 
-            if(computer->GetPosition().y<0||computer->GetPosition().y>(700-136))
-            {
-                computer->Death();
-            }
+            if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)) pressed = false;
+
+            uis.SetScore(parallax->Score());
 
             window.clear();
             window.draw(back);
             window.draw(*parallax);
             window.draw(*computer);
+            window.draw(uis);
             window.display();
         }
 

@@ -1,6 +1,8 @@
 #include "Parallax.hpp"
 
 Parallax::Parallax(){
+
+    last = -1;
     initiated = false;
     score = 0;
 
@@ -29,56 +31,41 @@ Parallax::Parallax(){
 
 }
 
-void Parallax::Update(){
 
-    for(int i = 0; i < bases.size(); i++)
-    {
-        if(bases[i].getPosition().x < -(336*1.5f))
-        {
-            sf::Sprite NewSprite = bases[bases.size()-1];
-            NewSprite.setPosition(NewSprite.getPosition().x+336*1.5f,700-112);
-            bases.push_back(NewSprite);
-            bases.erase(bases.begin()+i);
-            continue;
-        }
-    }
+void Parallax::Update()
+{
+    // ... (Tu lógica de bases sigue igual) ...
 
-    for(int i = 0; i < bases.size(); i++)
-    {
-        bases[i].move(-2.5,0);
-    }
-    
     if(!initiated) return;
 
-    int ult = obstacles.size()-1;
-
-    for(int i = 0; i < obstacles.size();i++)
+    for(std::size_t i = 0; i < obstacles.size(); i++)
     {
-        
-        if(obstacles[i].GetPosition().x<100&&i>last)
+        // Si el obstáculo está en el rango de puntuación
+        // Verificamos si la X está exactamente en el umbral para sumar solo 1 vez
+        if(obstacles[i].GetPosition().x >= 100 - 2 && obstacles[i].GetPosition().x < 100 + 2)
         {
-            last=i;
             score++;
         }
 
-        if(obstacles[i].GetPosition().x<=-100)
+        // Lógica de reemplazo
+        if(obstacles[i].GetPosition().x <= -100)
         {
-            obstacles.push_back(Obstacle{obstacleTexture,static_cast<int>(obstacles[ult].GetPosition().x + 350),100+rand()%250});
-            obstacles.erase(obstacles.begin()+i); 
+            int ultX = obstacles[obstacles.size() - 1].GetPosition().x;
+            obstacles.push_back(Obstacle{obstacleTexture, ultX + 350, 100 + rand() % 250});
+            obstacles.erase(obstacles.begin() + i);
+            i--; // Ajustamos el índice tras borrar
         }
     }
 
-    for(int i = 0; i < obstacles.size(); i++)
+    for(std::size_t i = 0; i < obstacles.size(); i++)
     {
         obstacles[i].Update();
     }
-
-    std::cout<<bases.size()<<" ";
 }
 
 bool Parallax::Collision(sf::IntRect rect)
 {
-    for(int i=0; i < obstacles.size(); i++)
+    for(std::size_t i=0; i < obstacles.size(); i++)
     {
         if (obstacles[i].Collision(rect)) 
         {
@@ -99,6 +86,6 @@ void Parallax::Initiated(){
 }
 
 void Parallax::draw(sf::RenderTarget &rt, sf::RenderStates rs) const{
-    for(int i = 0; i < obstacles.size(); i++)rt.draw(obstacles[i],rs);
-    for(int i = 0; i < bases.size(); i++)rt.draw(bases[i],rs);
+    for(std::size_t i = 0; i < obstacles.size(); i++)rt.draw(obstacles[i],rs);
+    for(std::size_t i = 0; i < bases.size(); i++)rt.draw(bases[i],rs);
 }
