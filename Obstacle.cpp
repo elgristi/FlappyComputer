@@ -1,7 +1,9 @@
 #include "Obstacle.hpp"
 
-Obstacle::Obstacle(sf::Texture & texture, int x, int y)
+Obstacle::Obstacle(sf::Texture & texture, int x, int y,int NewIndex)
 {
+    index = NewIndex;
+
     upSprite.setTexture(texture);
     downSprite.setTexture(texture);
 
@@ -16,9 +18,9 @@ Obstacle::Obstacle(sf::Texture & texture, int x, int y)
     
 }
 
-void Obstacle::Update(){
-    upSprite.move(-2.5,0);
-    downSprite.move(-2.5,0);
+void Obstacle::Update(float vel){
+    upSprite.move(-2.5 * vel,0);
+    downSprite.move(-2.5 * vel,0);
 
 }
 
@@ -42,4 +44,9 @@ void Obstacle::draw(sf::RenderTarget &rt, sf::RenderStates rs) const
 {
     rt.draw(upSprite,rs);
     rt.draw(downSprite,rs);
+}
+
+int Obstacle::getIndex()
+{
+    return index;
 }

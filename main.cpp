@@ -89,6 +89,7 @@ int main()
             if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)) pressed = false;
 
             uis.SetScore(parallax->Score());
+            parallax->SetVel(1+(parallax->Score()*0.05f));
 
             window.clear();
             window.draw(back);

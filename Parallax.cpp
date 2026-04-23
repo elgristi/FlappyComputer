@@ -2,9 +2,11 @@
 
 Parallax::Parallax(){
 
+    lastI = 0;
     last = -1;
     initiated = false;
     score = 0;
+    vel = 1;
 
     if(!obstacleTexture.loadFromFile("resources/sprites/pipe.png"))
     {
@@ -18,8 +20,8 @@ Parallax::Parallax(){
 
     srand(time(NULL));
 
-    obstacles.push_back(Obstacle(obstacleTexture,500,100+rand()%250));
-    obstacles.push_back(Obstacle(obstacleTexture,800,100+rand()%250));
+    obstacles.push_back(Obstacle(obstacleTexture,500,100+rand()%250,1));
+    obstacles.push_back(Obstacle(obstacleTexture,850,100+rand()%250,2));
 
     sf::Sprite NewSprite;
     NewSprite.setTexture(baseTexture);
@@ -34,32 +36,43 @@ Parallax::Parallax(){
 
 void Parallax::Update()
 {
-    // ... (Tu lógica de bases sigue igual) ...
-
-    if(!initiated) return;
-
-    for(std::size_t i = 0; i < obstacles.size(); i++)
+    // --- LÓGICA DE BASES ---
+    for(std::size_t i = 0; i < bases.size(); i++)
     {
-        // Si el obstáculo está en el rango de puntuación
-        // Verificamos si la X está exactamente en el umbral para sumar solo 1 vez
-        if(obstacles[i].GetPosition().x >= 100 - 2 && obstacles[i].GetPosition().x < 100 + 2)
-        {
-            score++;
-        }
+        // Movimiento de la base
+        bases[i].move(-2.5 * vel, 0);
 
-        // Lógica de reemplazo
-        if(obstacles[i].GetPosition().x <= -100)
+        if(bases[i].getPosition().x <= -(336*1.5f)) 
         {
-            int ultX = obstacles[obstacles.size() - 1].GetPosition().x;
-            obstacles.push_back(Obstacle{obstacleTexture, ultX + 350, 100 + rand() % 250});
-            obstacles.erase(obstacles.begin() + i);
-            i--; // Ajustamos el índice tras borrar
+            float tailX = bases[(i == 0) ? 1 : 0].getPosition().x + 333*1.5f;
+            
+            bases[i].setPosition(tailX, bases[i].getPosition().y);
         }
     }
 
+
+    if(!initiated) return;
+
+    // --- LÓGICA DE OBSTÁCULOS ---
     for(std::size_t i = 0; i < obstacles.size(); i++)
     {
-        obstacles[i].Update();
+        if(obstacles[i].GetPosition().x >= 100 - 2 && obstacles[i].GetPosition().x < 100 + 2 && obstacles[i].getIndex()>lastI)
+        {
+            score++;
+            lastI++;
+        }
+
+        if(obstacles[i].GetPosition().x <= -100)
+        {
+            float lastX = obstacles.back().GetPosition().x;
+            obstacles.push_back(Obstacle(obstacleTexture, lastX + 350, 100 + rand() % 250,(lastI+2)));
+            obstacles.erase(obstacles.begin() + i);
+            i--; 
+        }
+    }
+
+    for(auto& obs : obstacles) {
+        obs.Update(vel);
     }
 }
 
@@ -88,4 +101,8 @@ void Parallax::Initiated(){
 void Parallax::draw(sf::RenderTarget &rt, sf::RenderStates rs) const{
     for(std::size_t i = 0; i < obstacles.size(); i++)rt.draw(obstacles[i],rs);
     for(std::size_t i = 0; i < bases.size(); i++)rt.draw(bases[i],rs);
+}
+
+void Parallax::SetVel(float NewVel){
+    if(vel != NewVel)vel = NewVel;
 }

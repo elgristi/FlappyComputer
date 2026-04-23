@@ -5,6 +5,8 @@
 
 class Parallax : public sf::Drawable{
     private:
+        int lastI;
+        float vel;
         int last;
         int score;
         bool initiated;
@@ -19,4 +21,5 @@ class Parallax : public sf::Drawable{
         void Initiated();
         int Score();
         virtual void draw(sf::RenderTarget& , sf::RenderStates) const;
+        void SetVel(float);
 };

@@ -40,6 +40,7 @@ UISound::UISound()
         std::cout<<"Error al cargar el sonido music.ogg \n";
     }
 
+    Music.setVolume(30);
     Music.setLoop(true);
     Music.play();
 
